@@ -1,25 +1,23 @@
 
 use std::{fs::*};
 use std::os::windows::fs::FileExt;
-//use rand::Rng;
+use sha256::*;
 fn main() {
-    let archivo_bytes= read("AAA.jfif");
+    let archivo_bytes= read("a.txt");
     match archivo_bytes {
         Ok(a)=>{
+            let mut contrasena_usuario= crear_contrasena_del_usuario();
             let mut nuevo_archivo:Vec<u16>= Vec::new();
-            let mut indice=0;
-            let mut  digitos_pi:[u8; 10]= [0; 10];
+            let mut  numero_aleatorio:u8;
             let  archivo_encriptado= match File::create("archivo3.encriptado") {
                 Err(pq)=> panic!("Error al escribir el archivo debido a {}", pq ),
                 Ok(archivo)=> archivo
             };
-            
-            for i in 0..10 {
-                digitos_pi[i]=get_pi_digits();
-            }
+            println!("hola usuario la contraseña de tu aarchivo es: \n{}\n No lo olvides :D", contrasena_usuario);
             for i in 0..a.len() {
+                numero_aleatorio=numeros_aleaatorios(&mut contrasena_usuario);
                 let mut transformar:u16= a[i] as u16;
-                match digitos_pi[indice]  {
+                match numero_aleatorio  {
                     1=>{
                         transformar+=27;
                     }
@@ -47,7 +45,6 @@ fn main() {
                     8=>{
                         transformar*=3;
                         transformar+=7;
-                        print!("{transformar}");
                     }
                     9=>{
                         transformar*=2;
@@ -62,10 +59,6 @@ fn main() {
                     }
                 }
                 nuevo_archivo.push(transformar);
-                indice+=1;
-                if indice==10 {
-                    indice=0;
-                }
             }
             let mut indice= 0;
             for i in 0..nuevo_archivo.len()  {
@@ -85,8 +78,25 @@ fn main() {
             print!("Error al cargar el archivo");
         }
     }
- }
-fn get_pi_digits() -> u8{
+}
+
+
+fn numeros_aleaatorios(contraesena: &mut String) -> u8{
     
-    return 8;
+    let nueva_contrasena=digest(contraesena.as_str());
+    contraesena.clear();
+    contraesena.push_str(&nueva_contrasena);
+    let indice= contraesena.len()-1;
+    let valor_pseudoaleatorio= nueva_contrasena.as_bytes();
+    let mut retorno= valor_pseudoaleatorio[indice];
+    retorno=retorno%10;
+    return retorno;
+}
+fn crear_contrasena_del_usuario() -> String{
+    let mut contrasena=String::new();
+    for _i in 0..10 {
+        let letra_aleatoria= rand::random::<char>();
+        contrasena.push(letra_aleatoria);
+    }
+    return digest(contrasena);
 }
