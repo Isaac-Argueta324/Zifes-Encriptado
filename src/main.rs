@@ -2,21 +2,45 @@
 use std::{fs::*};
 use std::os::windows::fs::FileExt;
 use sha256::*;
+use std::time::*;
+use std::io::*;
 fn main() {
-    let archivo_bytes= read("a.txt");
+    //Lectura del archivo
+    let mut archivo_nombre=String::new();
+    println!("Hola usuario introduce el archivo que deseas codificar");
+    stdin().read_line(&mut archivo_nombre ).expect("Error durante la lectura de la contraseña");
+    archivo_nombre.pop();
+    archivo_nombre.pop();
+    let b= archivo_nombre.as_str();
+    let archivo_bytes= read(b);
     match archivo_bytes {
         Ok(a)=>{
-            let mut contrasena_usuario= crear_contrasena_del_usuario();
-            let mut nuevo_archivo:Vec<u16>= Vec::new();
+            
+            let mut contrasena_usuario= String::new(); 
+            let mut indice= 0;
             let mut  numero_aleatorio:u8;
-            let  archivo_encriptado= match File::create("archivo3.encriptado") {
+            let mut nuevo_archivo_nombre=String::from("Crzipfes_");
+            nuevo_archivo_nombre.push_str(b);
+
+            let  archivo_encriptado= match File::create(nuevo_archivo_nombre) {
                 Err(pq)=> panic!("Error al escribir el archivo debido a {}", pq ),
                 Ok(archivo)=> archivo
             };
-            println!("hola usuario la contraseña de tu aarchivo es: \n{}\n No lo olvides :D", contrasena_usuario);
+
+            println!("Introduce la contraseña de tu archivo");
+           stdin().read_line(&mut contrasena_usuario).expect("Error durante la lectura de la contraseña");
+           contrasena_usuario.pop();
+           contrasena_usuario.pop();
+
+            //Ciclo de encriptado
+            let tiempo= Instant::now();
             for i in 0..a.len() {
+                //Seleccion de un numero aleatorio
                 numero_aleatorio=numeros_aleaatorios(&mut contrasena_usuario);
                 let mut transformar:u16= a[i] as u16;
+
+                //Seleccionar y ejecutar una transformación
+
                 match numero_aleatorio  {
                     1=>{
                         transformar+=27;
@@ -58,11 +82,10 @@ fn main() {
 
                     }
                 }
-                nuevo_archivo.push(transformar);
-            }
-            let mut indice= 0;
-            for i in 0..nuevo_archivo.len()  {
-                let  escribir= nuevo_archivo[i].to_be_bytes();
+                
+                //Escritura del nuevo dato en el archivo
+
+                let escribir=transformar.to_be_bytes();
                 match archivo_encriptado.seek_write(&escribir,indice){
                     Ok(_a)=>{
 
@@ -73,6 +96,8 @@ fn main() {
                 }
                 indice+=2;
             }
+            println!("{}", tiempo.elapsed().as_secs());
+            
         }
         Err(_a)=>{
             print!("Error al cargar el archivo");
@@ -80,6 +105,7 @@ fn main() {
     }
 }
 
+ //
 
 fn numeros_aleaatorios(contraesena: &mut String) -> u8{
     
@@ -92,11 +118,5 @@ fn numeros_aleaatorios(contraesena: &mut String) -> u8{
     retorno=retorno%10;
     return retorno;
 }
-fn crear_contrasena_del_usuario() -> String{
-    let mut contrasena=String::new();
-    for _i in 0..10 {
-        let letra_aleatoria= rand::random::<char>();
-        contrasena.push(letra_aleatoria);
-    }
-    return digest(contrasena);
-}
+
+//
