@@ -2,13 +2,12 @@
 use std::{fs::*};
 use std::os::windows::fs::FileExt;
 use sha256::*;
-use std::time::*;
 use std::io::*;
 fn main() {
     //Lectura del archivo
     let mut archivo_nombre=String::new();
     println!("Hola usuario introduce el archivo que deseas codificar");
-    stdin().read_line(&mut archivo_nombre ).expect("Error durante la lectura de la contraseña");
+    stdin().read_line(&mut archivo_nombre ).expect("Error al leer el nombre del archivo a encriptar");
     archivo_nombre.pop();
     archivo_nombre.pop();
     let b= archivo_nombre.as_str();
@@ -32,14 +31,14 @@ fn main() {
            contrasena_usuario.pop();
            contrasena_usuario.pop();
 
-            //Ciclo de encriptado
-            let tiempo= Instant::now();
+            //Ciclo de encriptado, se itera en función del tamaño del archivo en bytes
+            
             for i in 0..a.len() {
-                //Seleccion de un numero aleatorio
+                //Seleccion de un numero aleatorio mediante la función numeros_aleaatorios que toma como parametro la contraseña del usuario
                 numero_aleatorio=numeros_aleaatorios(&mut contrasena_usuario);
                 let mut transformar:u16= a[i] as u16;
 
-                //Seleccionar y ejecutar una transformación
+                //Seleccionar y ejecutar una transformación en función del numero aleatorio
 
                 match numero_aleatorio  {
                     1=>{
@@ -96,7 +95,6 @@ fn main() {
                 }
                 indice+=2;
             }
-            println!("{}", tiempo.elapsed().as_secs());
             
         }
         Err(_a)=>{
@@ -105,7 +103,13 @@ fn main() {
     }
 }
 
- //
+
+/*
+    La función numeros_aleaatorios toma como parametro un apuntador a un String, este parametro es llamado contrasena
+    se almacena en una variable llamada nueva_contrasena el hash de la cadena a la que apunta el parametro contrasena
+    Se limpia la cadena a la que apunta el parametro contrasena y se le asigna el valor del hash
+    Se selecciona el ultimo caracter del hash, se convierte a un entero de, se aplica modulo 10 y regresa este ultimo valor
+ */
 
 fn numeros_aleaatorios(contraesena: &mut String) -> u8{
     
