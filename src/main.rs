@@ -3,6 +3,7 @@ use std::{fs::*};
 use std::os::windows::fs::FileExt;
 use sha256::*;
 use std::io::*;
+use std::time::Instant;
 fn main() {
     //Lectura del archivo
     let mut archivo_nombre=String::new();
@@ -30,7 +31,7 @@ fn main() {
            stdin().read_line(&mut contrasena_usuario).expect("Error durante la lectura de la contraseña");
            contrasena_usuario.pop();
            contrasena_usuario.pop();
-
+            let tiemp= Instant::now();
             //Ciclo de encriptado, se itera en función del tamaño del archivo en bytes
             
             for i in 0..a.len() {
@@ -95,7 +96,7 @@ fn main() {
                 }
                 indice+=2;
             }
-            
+            println!("Codificación exitosa tiempo de codificación: {} segundos", tiemp.elapsed().as_nanos());
         }
         Err(_a)=>{
             print!("Error al cargar el archivo");
